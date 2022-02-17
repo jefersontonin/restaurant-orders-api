@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_17_144746) do
+ActiveRecord::Schema.define(version: 2022_02_17_195611) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,6 +27,47 @@ ActiveRecord::Schema.define(version: 2022_02_17_144746) do
     t.integer "active", default: 1
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "order_products", force: :cascade do |t|
+    t.integer "quantity"
+    t.bigint "product_id", null: false
+    t.string "directions"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["product_id"], name: "index_order_products_on_product_id"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.bigint "order_product_id", null: false
+    t.bigint "table_id", null: false
+    t.bigint "employee_id", null: false
+    t.integer "status"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["employee_id"], name: "index_orders_on_employee_id"
+    t.index ["order_product_id"], name: "index_orders_on_order_product_id"
+    t.index ["table_id"], name: "index_orders_on_table_id"
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.decimal "price", precision: 10, scale: 2
+    t.integer "availability"
+    t.bigint "category_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["category_id"], name: "index_products_on_category_id"
+  end
+
+  create_table "tables", force: :cascade do |t|
+    t.integer "number"
+    t.decimal "total_price", precision: 10, scale: 2
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "order_id", null: false
+    t.index ["order_id"], name: "index_tables_on_order_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -53,4 +94,10 @@ ActiveRecord::Schema.define(version: 2022_02_17_144746) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "order_products", "products"
+  add_foreign_key "orders", "employees"
+  add_foreign_key "orders", "order_products"
+  add_foreign_key "orders", "tables"
+  add_foreign_key "products", "categories"
+  add_foreign_key "tables", "orders"
 end
